@@ -21,7 +21,7 @@ The command to sign the enclave with a HSM using OpenSSL engine looks like this:
 ```
 ./gramine-sgx-ossl-sign \
   --manifest <your-app-manifest> --output <your-app-manifest>.sgx \
-  --url openssl_engine --key sgx_sign_key
+  --engine openssl_engine --key sgx_sign_key
 ```
 
 where `sgx_sign_key` is the name of the RSA private key created in the HSM
