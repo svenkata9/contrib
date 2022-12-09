@@ -1,0 +1,26 @@
+FROM {{image}} as unsigned_image
+
+USER root
+
+# Install packages required for using the sign script
+{% block install %}
+RUN apt-get update -y \
+        && env DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        wget
+{% endblock %}
+
+RUN wget -P /gramine/app_files/ https://raw.githubusercontent.com/gramineproject/contrib/master/Integrations/openssl/engine-sign/gramine-sgx-ossl-sign
+
+RUN chmod +x /gramine/app_files/gramine-sgx-ossl-sign
+
+RUN {% block path %}{% endblock %} /gramine/app_files/gramine-sgx-ossl-sign \
+      --engine <engine_name> \
+      --key <key_id_or_label> \
+      --manifest /gramine/app_files/entrypoint.manifest \
+      --output /gramine/app_files/entrypoint.manifest.sgx
+
+# This trick removes all temporary files from the previous commands
+FROM {{image}}
+
+COPY --from=unsigned_image /gramine/app_files/*.sig /gramine/app_files/
+
